@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Do You Put Effort Into Your Job?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column on white, ink type, square corners; Hooker Green (growth arc) appears only in the module chip, selected answers, and score bars. */
+:root {
+  --paper: #ffffff;
+  --ink: #1E1B18;
+  --muted: #5c5650;
+  --line: #d9d4cc;
+  --arc: #477D71;
+  --on-arc: #ffffff;
+  --source-bg: #f6f4ee;
+  --source-line: #cfc9bc;
+  --track: #eeebe5;
+  --focus: #2f5e54;
+  --display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+    --arc: #477D71; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+    --track: #2a2926; --focus: #8fc7ba; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+  --arc: #477D71; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+  --track: #2a2926; --focus: #8fc7ba; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--body);
+}
+.wrap {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 2rem 4rem;
+  display: grid;
+  gap: 2.25rem;
+}
+p { margin: 0; }
+.stack { display: grid; gap: 0.9rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.label {
+  font: 400 0.78rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+/* Header */
+header { display: grid; gap: 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 1.5rem; }
+.kicker { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.chip {
+  background: var(--arc); color: var(--on-arc);
+  font: 700 0.85rem/1 var(--mono);
+  padding: 0.45rem 0.55rem;
+}
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.4rem; line-height: 1.2; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+
+/* Fields */
+.fields { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; align-items: start; }
+@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 0.35rem; min-width: 0; }
+.field label { font-weight: 600; font-size: 0.95rem; }
+.field .hint { font-size: 0.85rem; color: var(--muted); }
+input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--ink); border-radius: 0;
+  padding: 0.55rem 0.7rem; width: 100%; box-sizing: border-box;
+}
+input[type="text"][aria-invalid="true"] { border-style: dashed; }
+input[type="text"]:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Source box */
+.source {
+  background: var(--source-bg);
+  border: 1px solid var(--source-line);
+  padding: 1.25rem 1.25rem 1rem;
+  display: grid; gap: 1.1rem;
+}
+.source .from { font-weight: 600; font-family: var(--display); }
+.cite { font-size: 0.82rem; line-height: 1.5; color: var(--muted); border-top: 1px solid var(--source-line); padding-top: 0.8rem; overflow-wrap: anywhere; }
+.cite a { color: inherit; }
+.note { border-left: 3px solid var(--ink); padding-left: 1rem; }
+.lead { color: var(--ink); }
+
+/* Items */
+.stem { font-weight: 600; }
+.legend-scale { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; font: 400 0.8rem/1.4 var(--mono); color: var(--muted); }
+.legend-scale b { color: var(--ink); }
+ol.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.item { border-top: 1px solid var(--source-line); padding-block: 0.9rem; }
+.item:last-child { border-bottom: 1px solid var(--source-line); }
+.item fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.6rem; }
+.item legend { padding: 0; display: flex; gap: 0.6rem; }
+.item legend .n { font: 700 0.9rem/1.6 var(--mono); min-width: 1.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.scale { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.3rem; margin-left: 2.2rem; }
+.ends { display: none; justify-content: space-between; margin-left: 2.2rem; font: 400 0.68rem/1.2 var(--mono); color: var(--muted); text-transform: lowercase; }
+@media (max-width: 600px) {
+  .scale, .ends { margin-left: 0; }
+  .opt small { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ends { display: flex; }
+}
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span {
+  display: grid; gap: 0.1rem; justify-items: center; align-content: start; text-align: center; height: 100%;
+  border: 1.5px solid var(--line); background: var(--paper);
+  padding: 0.45rem 0.15rem; cursor: pointer;
+  transition: background-color .12s, border-color .12s;
+}
+.opt b { font: 700 1rem/1.1 var(--mono); }
+.opt small { font: 400 0.66rem/1.2 var(--mono); text-transform: lowercase; color: var(--muted); }
+.opt input:hover + span { border-color: var(--ink); }
+.opt input:checked + span { background: var(--arc); border-color: var(--ink); color: var(--on-arc); }
+.opt input:checked + span small { color: var(--on-arc); }
+.opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+.item.missing .scale .opt span { border-color: var(--ink); border-style: dashed; }
+
+/* Actions */
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+button {
+  font: 700 1rem/1 var(--display); border-radius: 0; cursor: pointer;
+  padding: 0.85rem 1.2rem; border: 2px solid var(--ink);
+}
+.primary { background: var(--ink); color: var(--paper); }
+.secondary { background: transparent; color: var(--ink); font-size: 0.9rem; padding: 0.6rem 0.9rem; }
+.count { font: 400 0.85rem var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.msg { font-size: 0.95rem; font-weight: 600; border: 2px dashed var(--ink); padding: 0.6rem 0.8rem; }
+.err { font-size: 0.9rem; font-weight: 600; }
+
+/* Results */
+.result { border: 2px solid var(--ink); padding: 1.25rem; display: grid; gap: 1.25rem; background: var(--paper); }
+.result-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 0.9rem; }
+.who { font: 700 1.5rem/1.15 var(--display); overflow-wrap: anywhere; }
+.group { color: var(--muted); font-size: 0.95rem; overflow-wrap: anywhere; }
+.rows { display: grid; gap: 1.1rem; }
+.row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 0.4rem 1rem; align-items: center; }
+@media (max-width: 520px) { .row { grid-template-columns: minmax(0, 1fr) 3.5rem; } .row .bar { grid-column: 1 / -1; grid-row: 2; } }
+.row .name { font-weight: 600; line-height: 1.3; }
+.row .name .label { display: block; text-transform: none; }
+.row .score { font: 700 1.35rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.row .score small { font: 400 0.75rem var(--mono); color: var(--muted); }
+.bar { position: relative; height: 1.1rem; background: var(--track); border: 1px solid var(--line); }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--arc); border-right: 2px solid var(--ink); }
+.axis { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 1rem; }
+@media (max-width: 520px) { .axis { grid-template-columns: minmax(0, 1fr); } .axis .spacer { display: none; } }
+.ticks { position: relative; height: 1rem; font: 400 0.7rem var(--mono); color: var(--muted); }
+.ticks span { position: absolute; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+.ticks span:last-child { transform: translateX(-100%); }
+
+ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.4rem; }
+a { color: var(--ink); text-underline-offset: 2px; }
+footer { font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">
+      <span class="chip" aria-hidden="true">07</span>
+      <span class="label">mngt-p413 · growth arc · module 7 snapshot</span>
+    </div>
+    <h1>Why Do You Put Effort Into Your Job?</h1>
+  </header>
+
+  <section class="stack" aria-labelledby="before">
+    <h2 id="before">Before you start</h2>
+    <p>This week is about ethics, and we start with rewards (or the degree to which we get motivated to act in certain ways, based on the incentives offered). Take a few minutes to reflect on your own reasons for putting effort into your work and complete this snapshot.</p>
+    <p>Pick one job, role, or context and keep it in mind for all 19 statements. Your current job works best. If you aren't working right now, use your most recent job or a role you've put real effort into, like an internship, a volunteer role, or a team. Wherever a statement says "job," read it as that role.</p>
+    <p>There's no score to aim for. This snapshot earns completion credit, and I'm interested in what you notice. Your answers stay in this browser window and aren't sent to me or saved anywhere, so be sure to take a screenshot of your results before you exit out of this window.</p>
+  </section>
+
+  <form id="snapshot" class="stack" novalidate>
+    <div class="fields">
+      <div class="field">
+        <label for="studentName">Your name</label>
+        <input type="text" id="studentName" name="studentName" autocomplete="name" required aria-describedby="nameHint nameErr">
+        <p class="hint" id="nameHint">Add your name so it shows on your results.</p>
+        <p class="err" id="nameErr" hidden>Add your name here so your screenshot shows it's yours.</p>
+      </div>
+      <div class="field">
+        <label for="jobName">The job you have in mind</label>
+        <input type="text" id="jobName" name="jobName" required aria-describedby="jobHint jobErr">
+        <p class="hint" id="jobHint">For example, shift lead at a coffee shop, or youth soccer coach.</p>
+        <p class="err" id="jobErr" hidden>Add the job or role you're thinking of so it shows on your results.</p>
+      </div>
+    </div>
+
+    <p class="lead">A few statements describe putting in little or no effort. Rate them the same way: how much is this a reason for you?</p>
+
+    <div class="source">
+      <p class="from">From the Center for Self-Determination Theory · Multidimensional Work Motivation Scale</p>
+      <p class="stem">To what extent are the following propositions reasons for you to make efforts/to get involved in your job?</p>
+      <ul class="legend-scale" id="legendScale"></ul>
+      <ol class="items" id="items"></ol>
+      <p class="cite">Gagné, M., Forest, J., et al. (2015). The Multidimensional Work Motivation Scale: Validation evidence in seven languages and nine countries. <em>European Journal of Work and Organizational Psychology, 24</em>, 178–196. <a href="https://doi.org/10.1080/1359432X.2013.877892">https://doi.org/10.1080/1359432X.2013.877892</a><br>
+      Center for Self-Determination Theory (<a href="https://selfdeterminationtheory.org/multidimensional-work-motivation-scale/">selfdeterminationtheory.org</a>), used for academic purposes. Adapted: statements in a mixed order, as the authors recommend; spacing and punctuation tidied.</p>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="seeResults">See my results</button>
+      <span class="count" id="count" aria-live="polite">0 of 19 answered</span>
+    </div>
+    <p class="msg" id="msg" role="alert" hidden></p>
+  </form>
+
+  <section id="results" class="stack" aria-labelledby="resultsHeading" hidden tabindex="-1">
+    <h2 id="resultsHeading">Your results</h2>
+
+    <div class="result" id="resultCard">
+      <div class="result-head">
+        <div>
+          <div class="who" id="rName"></div>
+          <div class="group" id="rJob"></div>
+        </div>
+        <div class="label" id="rMeta"></div>
+      </div>
+      <div class="rows" id="rows"></div>
+      <div class="axis" aria-hidden="true">
+        <span class="spacer"></span>
+        <div class="ticks" id="ticks"></div>
+        <span class="spacer"></span>
+      </div>
+      <p class="label">each score is the average of its statements · lowest possible 1 · highest possible 7</p>
+      <p class="label" style="text-transform: none;">Scored by averaging each subscale, following the guidance from Gagné et al. (2015).</p>
+    </div>
+
+    <p class="note"><strong>Dr. B's note:</strong> In module 1 you looked at whether your work meets your needs for autonomy, competence, and relatedness. This scale looks at a different question: the reasons behind your effort. The five scores run from no reason at all, through reasons that come from outside you, to reasons you hold yourself. Most of us carry some of each, and a high score on one doesn't cancel the others. Notice which reasons are strongest for you in the job you picked, and whether they would change in a different role. Your identified regulation score connects to the values you named in Module 0, and both feed the leadership philosophy you'll draft this week.</p>
+
+    <div class="stack">
+      <h3>Turn it in</h3>
+      <ol class="steps">
+        <li>Take a screenshot that shows your name, the job you had in mind, and your five scores.</li>
+        <li>Upload it to the Module 7 snapshot assignment in Canvas.</li>
+      </ol>
+      <p>Stuck on the screenshot? Use the screenshot one-pager from Module 0, or <a href="https://take-a-screenshot.org">Take a Screenshot</a> for any device.</p>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="editAnswers">Change my answers</button>
+      <button type="button" class="secondary" id="startOver">Start over</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>MNGT-P413 Managerial Leadership · Dr. Bonni Stachowiak. Scale items from the Multidimensional Work Motivation Scale (Gagné et al., 2015), Center for Self-Determination Theory, used for academic purposes.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // Statements in the mixed order shown to students (same order for everyone).
+  const ITEMS = [
+    "Because I personally consider it important to put efforts in this job.",
+    "To get others’ approval (e.g., supervisor, colleagues, family, clients...).",
+    "Because I have to prove to myself that I can.",
+    "Because I have fun doing my job.",
+    "Because others will reward me financially only if I put enough effort in my job (e.g., employer, supervisor...).",
+    "I don’t, because I really feel that I’m wasting my time at work.",
+    "Because otherwise I will feel ashamed of myself.",
+    "To avoid being criticized by others (e.g., supervisor, colleagues, family, clients...).",
+    "Because putting efforts in this job aligns with my personal values.",
+    "Because I risk losing my job if I don’t put enough effort in it.",
+    "Because what I do in my work is exciting.",
+    "Because it makes me feel proud of myself.",
+    "I do little because I don’t think this work is worth putting efforts into.",
+    "Because others will respect me more (e.g., supervisor, colleagues, family, clients...).",
+    "Because putting efforts in this job has personal significance to me.",
+    "Because otherwise I will feel bad about myself.",
+    "Because others offer me greater job security if I put enough effort in my job (e.g., employer, supervisor...).",
+    "Because the work I do is interesting.",
+    "I don’t know why I’m doing this job, it’s pointless work."
+  ];
+  const SCALE = [[1, "Not at all"], [2, "Not really"], [3, "A little"], [4, "Moderate"], [5, "Strong"], [6, "Very strong"], [7, "Completely / entirely"]];
+  // The instrument's five subscales; each score is the mean of its items.
+  const CATEGORIES = [
+    { name: "Amotivation", plain: "no clear reason to put in effort", items: [6, 13, 19] },
+    { name: "External regulation", plain: "others’ approval or criticism, pay, or job security", items: [2, 5, 8, 10, 14, 17] },
+    { name: "Introjected regulation", plain: "pride, guilt, or shame", items: [3, 7, 12, 16] },
+    { name: "Identified regulation", plain: "the work matters to me", items: [1, 9, 15] },
+    { name: "Intrinsic motivation", plain: "I enjoy the work itself", items: [4, 11, 18] }
+  ];
+  const N = ITEMS.length, MIN = 1, MAX = 7;
+
+  document.getElementById("legendScale").innerHTML =
+    SCALE.map(([v, w]) => `<li><b>${v}</b> ${w}</li>`).join("");
+  document.getElementById("ticks").innerHTML =
+    SCALE.map(([v]) => `<span style="left:${((v - MIN) / (MAX - MIN)) * 100}%">${v}</span>`).join("");
+
+  const list = document.getElementById("items");
+  ITEMS.forEach((text, i) => {
+    const n = i + 1;
+    const li = document.createElement("li");
+    li.className = "item";
+    li.id = "item-" + n;
+    const opts = SCALE.map(([v, word]) =>
+      `<label class="opt"><input type="radio" name="q${n}" id="q${n}-${v}" value="${v}"><span><b>${v}</b><small>${word}</small></span></label>`
+    ).join("");
+    li.innerHTML = `<fieldset><legend><span class="n">${n}.</span><span>${text}</span></legend><div class="scale">${opts}</div><div class="ends" aria-hidden="true"><span>1 ${SCALE[0][1]}</span><span>7 ${SCALE[6][1]}</span></div></fieldset>`;
+    list.appendChild(li);
+  });
+
+  const form = document.getElementById("snapshot");
+  const count = document.getElementById("count");
+  const msg = document.getElementById("msg");
+  const results = document.getElementById("results");
+  const nameInput = document.getElementById("studentName");
+  const jobInput = document.getElementById("jobName");
+  const nameErr = document.getElementById("nameErr");
+  const jobErr = document.getElementById("jobErr");
+
+  function answers() {
+    const a = {};
+    for (let n = 1; n <= N; n++) {
+      const c = form.querySelector(`input[name="q${n}"]:checked`);
+      a[n] = c ? Number(c.value) : null;
+    }
+    return a;
+  }
+
+  function updateCount() {
+    const done = Object.values(answers()).filter(v => v !== null).length;
+    count.textContent = `${done} of ${N} answered`;
+  }
+
+  form.addEventListener("change", e => {
+    if (e.target.type === "radio") {
+      const li = e.target.closest(".item");
+      if (li) li.classList.remove("missing");
+      updateCount();
+    }
+  });
+
+  nameInput.addEventListener("input", () => {
+    if (nameInput.value.trim()) { nameErr.hidden = true; nameInput.setAttribute("aria-invalid", "false"); }
+  });
+  jobInput.addEventListener("input", () => {
+    if (jobInput.value.trim()) { jobErr.hidden = true; jobInput.setAttribute("aria-invalid", "false"); }
+  });
+
+  // Enter key only; the button is type="button" with its own click handler.
+  form.addEventListener("submit", e => { e.preventDefault(); showResults(); });
+  document.getElementById("seeResults").addEventListener("click", showResults);
+
+  function showResults() {
+    const a = answers();
+    const missing = Object.keys(a).filter(k => a[k] === null).map(Number);
+    const name = nameInput.value.trim();
+    const job = jobInput.value.trim();
+    document.querySelectorAll(".item").forEach(li => li.classList.remove("missing"));
+    const fields = [];
+    if (!name) fields.push("your name");
+    if (!job) fields.push("the job you have in mind");
+    const problems = [];
+    if (fields.length) problems.push("add " + fields.join(" and ") + " at the top");
+    if (missing.length) {
+      missing.forEach(n => document.getElementById("item-" + n).classList.add("missing"));
+      problems.push((missing.length === 1 ? "answer item " : "answer items ") + missing.join(", "));
+    }
+    nameErr.hidden = !!name;
+    jobErr.hidden = !!job;
+    nameInput.setAttribute("aria-invalid", name ? "false" : "true");
+    jobInput.setAttribute("aria-invalid", job ? "false" : "true");
+    if (problems.length) {
+      msg.textContent = "Almost there: " + problems.join(" and ") + ", then click See my results again.";
+      msg.hidden = false;
+      msg.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    msg.hidden = true;
+    render(a, name, job);
+  }
+
+  function render(a, name, job) {
+    document.getElementById("rName").textContent = name;
+    document.getElementById("rJob").textContent = "Thinking of: " + job;
+    const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    document.getElementById("rMeta").textContent = "module 7 snapshot · " + date;
+
+    const rows = document.getElementById("rows");
+    rows.innerHTML = "";
+    CATEGORIES.forEach(cat => {
+      const vals = cat.items.map(n => a[n]);
+      const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
+      const shown = (Math.round(avg * 10) / 10).toFixed(1);
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        `<div class="name">${cat.name}<span class="label">${cat.plain}</span></div>` +
+        `<div class="bar" role="img" aria-label="${cat.name}: ${shown} out of ${MAX}"><div class="fill" style="width:${((avg - MIN) / (MAX - MIN)) * 100}%"></div></div>` +
+        `<div class="score">${shown}<small>/${MAX}</small></div>`;
+      rows.appendChild(row);
+    });
+
+    results.hidden = false;
+    results.focus({ preventScroll: true });
+    results.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  document.getElementById("editAnswers").addEventListener("click", () => {
+    form.scrollIntoView({ block: "start" });
+  });
+  document.getElementById("startOver").addEventListener("click", () => {
+    form.reset();
+    results.hidden = true;
+    msg.hidden = true;
+    nameErr.hidden = true;
+    jobErr.hidden = true;
+    nameInput.setAttribute("aria-invalid", "false");
+    jobInput.setAttribute("aria-invalid", "false");
+    document.querySelectorAll(".item").forEach(li => li.classList.remove("missing"));
+    updateCount();
+    window.scrollTo(0, 0);
+    nameInput.focus();
+  });
+})();
+</script>
+</body>
+</html>
