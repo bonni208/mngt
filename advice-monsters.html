@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which Advice Monster Shows Up for You?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column on white, ink type, square corners; Vesuvius (practice arc) appears only in the module chip, selected answers, and score bars. */
+:root {
+  --paper: #ffffff;
+  --ink: #1E1B18;
+  --muted: #5c5650;
+  --line: #d9d4cc;
+  --arc: #AB5631;
+  --on-arc: #ffffff;
+  --source-bg: #f6f4ee;
+  --source-line: #cfc9bc;
+  --track: #eeebe5;
+  --focus: #7a3a1f;
+  --display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+    --arc: #AB5631; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+    --track: #2a2926; --focus: #e3a585; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+  --arc: #AB5631; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+  --track: #2a2926; --focus: #e3a585; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--body);
+}
+.wrap {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 2rem 4rem;
+  display: grid;
+  gap: 2.25rem;
+}
+p { margin: 0; }
+.stack { display: grid; gap: 0.9rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.label {
+  font: 400 0.78rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+/* Header */
+header { display: grid; gap: 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 1.5rem; }
+.kicker { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.chip {
+  background: var(--arc); color: var(--on-arc);
+  font: 700 0.85rem/1 var(--mono);
+  padding: 0.45rem 0.55rem;
+}
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.4rem; line-height: 1.2; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+
+/* Fields */
+.fields { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; align-items: start; }
+@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 0.35rem; min-width: 0; }
+.field label { font-weight: 600; font-size: 0.95rem; }
+.field .hint { font-size: 0.85rem; color: var(--muted); }
+input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--ink); border-radius: 0;
+  padding: 0.55rem 0.7rem; width: 100%; box-sizing: border-box;
+}
+input[type="text"][aria-invalid="true"] { border-style: dashed; }
+input[type="text"]:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Source box */
+.source {
+  background: var(--source-bg);
+  border: 1px solid var(--source-line);
+  padding: 1.25rem 1.25rem 1rem;
+  display: grid; gap: 1.1rem;
+}
+.source .from { font-weight: 600; font-family: var(--display); }
+.cite { font-size: 0.82rem; line-height: 1.5; color: var(--muted); border-top: 1px solid var(--source-line); padding-top: 0.8rem; overflow-wrap: anywhere; }
+.cite a { color: inherit; }
+.note { border-left: 3px solid var(--ink); padding-left: 1rem; }
+.lead { color: var(--ink); }
+
+/* Items */
+.stem { font-weight: 600; }
+.legend-scale { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; font: 400 0.8rem/1.4 var(--mono); color: var(--muted); }
+.legend-scale b { color: var(--ink); }
+ol.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.item { border-top: 1px solid var(--source-line); padding-block: 0.9rem; }
+.item:last-child { border-bottom: 1px solid var(--source-line); }
+.item fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.6rem; }
+.item legend { padding: 0; display: flex; gap: 0.6rem; }
+.item legend .n { font: 700 0.9rem/1.6 var(--mono); min-width: 1.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; margin-left: 2.2rem; }
+@media (max-width: 600px) { .scale { margin-left: 0; } }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span {
+  display: grid; gap: 0.1rem; justify-items: center; align-content: start; text-align: center; height: 100%;
+  border: 1.5px solid var(--line); background: var(--paper);
+  padding: 0.45rem 0.15rem; cursor: pointer;
+  transition: background-color .12s, border-color .12s;
+}
+.opt b { font: 700 1rem/1.1 var(--mono); }
+.opt small { font: 400 0.66rem/1.2 var(--mono); text-transform: lowercase; color: var(--muted); }
+.opt input:hover + span { border-color: var(--ink); }
+.opt input:checked + span { background: var(--arc); border-color: var(--ink); color: var(--on-arc); }
+.opt input:checked + span small { color: var(--on-arc); }
+.opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+.item.missing .scale .opt span { border-color: var(--ink); border-style: dashed; }
+
+/* Actions */
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+button {
+  font: 700 1rem/1 var(--display); border-radius: 0; cursor: pointer;
+  padding: 0.85rem 1.2rem; border: 2px solid var(--ink);
+}
+.primary { background: var(--ink); color: var(--paper); }
+.secondary { background: transparent; color: var(--ink); font-size: 0.9rem; padding: 0.6rem 0.9rem; }
+.count { font: 400 0.85rem var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.msg { font-size: 0.95rem; font-weight: 600; border: 2px dashed var(--ink); padding: 0.6rem 0.8rem; }
+.err { font-size: 0.9rem; font-weight: 600; }
+
+/* Results */
+.result { border: 2px solid var(--ink); padding: 1.25rem; display: grid; gap: 1.25rem; background: var(--paper); }
+.result-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 0.9rem; }
+.who { font: 700 1.5rem/1.15 var(--display); overflow-wrap: anywhere; }
+.group { color: var(--muted); font-size: 0.95rem; overflow-wrap: anywhere; }
+.rows { display: grid; gap: 1.1rem; }
+.row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 0.4rem 1rem; align-items: center; }
+@media (max-width: 520px) { .row { grid-template-columns: minmax(0, 1fr) 3.5rem; } .row .bar { grid-column: 1 / -1; grid-row: 2; } }
+.row .name { font-weight: 600; line-height: 1.3; }
+.row .name .label { display: block; text-transform: none; }
+.row .score { font: 700 1.35rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.row .score small { font: 400 0.75rem var(--mono); color: var(--muted); }
+.bar { position: relative; height: 1.1rem; background: var(--track); border: 1px solid var(--line); }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--arc); border-right: 2px solid var(--ink); }
+.axis { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 1rem; }
+@media (max-width: 520px) { .axis { grid-template-columns: minmax(0, 1fr); } .axis .spacer { display: none; } }
+.ticks { position: relative; height: 1rem; font: 400 0.7rem var(--mono); color: var(--muted); }
+.ticks span { position: absolute; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+.ticks span:last-child { transform: translateX(-100%); }
+
+ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.4rem; }
+a { color: var(--ink); text-underline-offset: 2px; }
+footer { font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Module 4: choice questions, five-point scale, monster results */
+.part { display: grid; gap: 0.9rem; }
+.q { display: grid; gap: 0.6rem; border-top: 1px solid var(--line); padding-top: 0.9rem; }
+.q fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.6rem; }
+.q legend { padding: 0; font-weight: 600; display: flex; gap: 0.6rem; }
+.q legend .n { font: 700 0.9rem/1.6 var(--mono); color: var(--muted); min-width: 1.6rem; }
+.choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin-left: 2.2rem; }
+.choices.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 640px) { .choices.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .choices, .choices.four { grid-template-columns: 1fr; margin-left: 0; } }
+.choices .opt span { padding: 0.7rem 0.5rem; font-size: 0.95rem; }
+.choices .opt b { font: 600 0.95rem/1.3 var(--body); }
+.q.missing .opt span { border-color: var(--ink); border-style: dashed; }
+.section-label { font: 400 0.78rem/1.4 var(--mono); letter-spacing: 0.04em; text-transform: lowercase; color: var(--muted); }
+.rsec { display: grid; gap: 0.75rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.facts { display: grid; gap: 0.25rem; }
+.facts p { overflow-wrap: anywhere; }
+.facts b { font-weight: 600; }
+.monsters { display: grid; gap: 1rem; }
+.monster h3 { font-size: 1.05rem; }
+.monster p { margin-top: 0.2rem; }
+.monster .label { margin-top: 0.45rem; }
+.monster ul { margin: 0.25rem 0 0; padding-left: 1.2rem; font-size: 0.95rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">
+      <span class="chip" aria-hidden="true">04</span>
+      <span class="label">mngt-p413 · practice arc · module 4 snapshot</span>
+    </div>
+    <h1>Which Advice Monster Shows Up for You?</h1>
+  </header>
+
+  <section class="stack" aria-labelledby="before">
+    <h2 id="before">Before you start</h2>
+    <p>This week is about coaching. Take about five minutes to look at your own advice habits and complete this snapshot.</p>
+    <p>This snapshot uses Michael Bungay Stanier's idea of advice monsters, or those voices that push us to give advice too soon. You'll see which ones show up for you in your results.</p>
+    <p>Start by thinking of one recent time someone brought you a problem, a question, or a decision. Use your current job if you can. If you aren't working right now, use a past job or a role you've put real effort into, like an internship, a volunteer role, or a team. You could also use a time a classmate, friend, roommate, or family member came to you.</p>
+    <p>There's no score to aim for. This snapshot earns completion credit, and I'm interested in what you notice. I wrote these questions for this class; they're a reflection tool, not a published scale. Your answers stay in this browser window and aren't sent to me or saved anywhere, so be sure to take a screenshot of your name and results before you exit out of this window.</p>
+  </section>
+
+  <form id="snapshot" class="stack" novalidate>
+    <div class="fields">
+      <div class="field">
+        <label for="studentName">Your name</label>
+        <input type="text" id="studentName" name="studentName" autocomplete="name" required aria-describedby="nameHint nameErr">
+        <p class="hint" id="nameHint">Add your name so it shows on your results.</p>
+        <p class="err" id="nameErr" hidden>Add your name here so your screenshot shows it's yours.</p>
+      </div>
+      <div class="field">
+        <label for="roleName">The role</label>
+        <input type="text" id="roleName" name="roleName" required aria-describedby="roleHint roleErr">
+        <p class="hint" id="roleHint">Add the role you were in, like "shift lead" or "older sister."</p>
+        <p class="err" id="roleErr" hidden>Add the role you were in so it shows on your results.</p>
+      </div>
+      <div class="field">
+        <label for="personName">The person</label>
+        <input type="text" id="personName" name="personName" required aria-describedby="personHint personErr">
+        <p class="hint" id="personHint">Describe them by role, like "a newer coworker."</p>
+        <p class="err" id="personErr" hidden>Describe the person by role so it shows on your results.</p>
+      </div>
+      <div class="field">
+        <label for="topicName">What they brought to you</label>
+        <input type="text" id="topicName" name="topicName" required aria-describedby="topicHint topicErr">
+        <p class="hint" id="topicHint">A few words is enough, like "a scheduling conflict."</p>
+        <p class="err" id="topicErr" hidden>Add a few words about what they brought to you so it shows on your results.</p>
+      </div>
+    </div>
+
+    <section class="part" aria-labelledby="p1">
+      <h2 id="p1">That conversation</h2>
+      <p>Think about the conversation you have in mind.</p>
+      <div id="part1" class="part"></div>
+    </section>
+
+    <section class="part" aria-labelledby="p2">
+      <h2 id="p2">Your advice habits</h2>
+      <p>These statements are about how you usually respond when someone brings you a problem, beyond the conversation above. Choose how often each one is true for you.</p>
+      <ol class="items" id="items"></ol>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="primary" id="seeResults">See my results</button>
+      <span class="count" id="count" aria-live="polite">0 of 14 answered</span>
+    </div>
+    <p class="msg" id="msg" role="alert" hidden></p>
+  </form>
+
+  <section id="results" class="stack" aria-labelledby="resultsHeading" hidden tabindex="-1">
+    <h2 id="resultsHeading">Your results</h2>
+
+    <div class="result" id="resultCard">
+      <div class="result-head">
+        <div>
+          <div class="who" id="rName"></div>
+          <div class="group" id="rRole"></div>
+        </div>
+        <div class="label" id="rMeta"></div>
+      </div>
+      <div class="facts">
+        <p><b>Talking with:</b> <span id="rPerson"></span></p>
+        <p><b>About:</b> <span id="rTopic"></span></p>
+        <p><b>How soon you offered advice:</b> <span id="rSoon"></span></p>
+        <p><b>Who did most of the talking:</b> <span id="rTalk"></span></p>
+      </div>
+      <div class="rsec">
+        <p class="section-label">your advice monsters</p>
+        <div class="rows" id="rows"></div>
+        <div class="axis" aria-hidden="true">
+          <span class="spacer"></span>
+          <div class="ticks"><span style="left:0%">0</span><span style="left:20%">4</span><span style="left:40%">8</span><span style="left:60%">12</span><span style="left:80%">16</span><span style="left:100%">20</span></div>
+          <span class="spacer"></span>
+        </div>
+        <p class="label" style="text-transform: none;">Each score runs from 4 (never) to 20 (almost always). A higher score means that monster shows up more often for you. Everyone has all three.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <p class="section-label">about your advice monsters</p>
+      <div class="monsters" id="rMonsters"></div>
+    </div>
+
+    <p class="note"><strong>Dr. B's note:</strong> Every one of these monsters means well. Tell-It wants to help, Save-It cares, and Control-It wants things to go right. The cost is that the other person does less of their own thinking. Working out their own answer builds their competence, and choosing their own path builds their autonomy, two important drivers of human motivation. Staying curious a little longer, before you offer advice, gives them room for both.</p>
+
+    <div class="stack">
+      <h3>Turn it in</h3>
+      <ol class="steps">
+        <li>Take a screenshot that shows your name and your results.</li>
+        <li>Upload it to the Module 4 snapshot assignment in Canvas.</li>
+      </ol>
+      <p>Stuck on the screenshot? Use the screenshot one-pager from Module 0, or <a href="https://take-a-screenshot.org">Take a Screenshot</a> for any device.</p>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="editAnswers">Change my answers</button>
+      <button type="button" class="secondary" id="startOver">Start over</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>MNGT-P413 Managerial Leadership · Dr. Bonni Stachowiak. Reflection questions written for this class, based on the three advice monsters in Michael Bungay Stanier's <em>The Advice Trap</em> (2020).</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const ITEMS = [
+    ["I feel most useful when I have an answer ready.", "t"],
+    ["When someone is struggling, I step in and take care of it for them.", "s"],
+    ["I steer the conversation toward the outcome I already have in mind.", "c"],
+    ["It’s hard for me to watch someone struggle when I could make it easier.", "s"],
+    ["I start working out what they should do before they finish explaining.", "t"],
+    ["I get uneasy when a conversation goes somewhere I didn’t expect.", "c"],
+    ["I end up taking on problems that were someone else’s to solve.", "s"],
+    ["It’s hard for me to let someone pick their own approach when the result matters to me.", "c"],
+    ["I share how I handled something similar so they can do the same.", "t"],
+    ["Before we finish talking, I want to know exactly what they’re going to do.", "c"],
+    ["I skip the harder questions so the other person stays comfortable.", "s"],
+    ["Asking questions instead of answering feels like I’m holding back.", "t"]
+  ];
+  const SCALE = [[1, "Never"], [2, "Rarely"], [3, "Sometimes"], [4, "Often"], [5, "Almost always"]];
+  const MONSTERS = [
+    ["t", "Tell-It", "Tell-It says your job is to have the answer. It shows up as jumping in with advice before you know what the real problem is."],
+    ["s", "Save-It", "Save-It says your job is to rescue people. It shows up as taking on their problems and keeping things comfortable, even when that means doing the work for them."],
+    ["c", "Control-It", "Control-It says you need to stay in charge of how things go. It shows up as steering toward the outcome you already have in mind."]
+  ];
+  const QUESTIONS = [
+    { id: "soon", letter: "A", part: "part1", label: "When they brought it to you, how soon did you offer an idea or answer?",
+      opts: [["Before they finished explaining"], ["Within the first minute or two"], ["After asking a few questions"], ["I didn’t offer one"]] },
+    { id: "talk", letter: "B", part: "part1", label: "Who did most of the talking?",
+      opts: [["I did"], ["About even"], ["They did"]] }
+  ];
+
+  const esc = t => t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  QUESTIONS.forEach(q => {
+    document.getElementById(q.part).insertAdjacentHTML("beforeend",
+      `<div class="q" id="q-${q.id}"><fieldset><legend><span class="n">${q.letter}.</span><span>${q.label}</span></legend><div class="choices${q.opts.length === 4 ? " four" : ""}">` +
+      q.opts.map((o, oi) => `<label class="opt"><input type="radio" name="${q.id}" id="${q.id}-${oi}" value="${oi}"><span><b>${o[0]}</b>${o[1] ? `<small>${o[1]}</small>` : ""}</span></label>`).join("") +
+      `</div></fieldset></div>`);
+  });
+
+  document.getElementById("items").innerHTML = ITEMS.map(([text], i) => {
+    const n = i + 1;
+    const opts = SCALE.map(([v, word]) =>
+      `<label class="opt"><input type="radio" name="s${n}" id="s${n}-${v}" value="${v}"><span><b>${v}</b><small>${word}</small></span></label>`
+    ).join("");
+    return `<li class="item" id="item-${n}"><fieldset><legend><span class="n">${n}.</span><span>${text}</span></legend><div class="scale">${opts}</div></fieldset></li>`;
+  }).join("");
+
+  const form = document.getElementById("snapshot");
+  const count = document.getElementById("count");
+  const msg = document.getElementById("msg");
+  const results = document.getElementById("results");
+  const FIELDS = [
+    ["studentName", "nameErr", "your name"],
+    ["roleName", "roleErr", "the role"],
+    ["personName", "personErr", "the person"],
+    ["topicName", "topicErr", "what they brought to you"]
+  ];
+
+  function choice(name) {
+    const c = form.querySelector(`input[name="${name}"]:checked`);
+    return c ? Number(c.value) : null;
+  }
+  function itemValues() { return ITEMS.map((x, i) => choice("s" + (i + 1))); }
+  function updateCount() {
+    const done = QUESTIONS.filter(q => choice(q.id) !== null).length + itemValues().filter(v => v !== null).length;
+    count.textContent = `${done} of 14 answered`;
+  }
+
+  form.addEventListener("change", e => {
+    if (e.target.type === "radio") {
+      const box = e.target.closest(".q, .item");
+      if (box) box.classList.remove("missing");
+      updateCount();
+    }
+  });
+  FIELDS.forEach(([inputId, errId]) => {
+    const el = document.getElementById(inputId);
+    el.addEventListener("input", () => {
+      if (el.value.trim()) { document.getElementById(errId).hidden = true; el.setAttribute("aria-invalid", "false"); }
+    });
+  });
+
+  // Enter key only; the button is type="button" with its own click handler.
+  form.addEventListener("submit", e => { e.preventDefault(); showResults(); });
+  document.getElementById("seeResults").addEventListener("click", showResults);
+
+  function joinList(items) {
+    if (items.length <= 1) return items.join("");
+    if (items.length === 2) return items.join(" and ");
+    return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+  }
+
+  function showResults() {
+    const values = {};
+    const missingFields = [];
+    FIELDS.forEach(([inputId, errId, words]) => {
+      const el = document.getElementById(inputId);
+      const v = el.value.trim();
+      values[inputId] = v;
+      document.getElementById(errId).hidden = !!v;
+      el.setAttribute("aria-invalid", v ? "false" : "true");
+      if (!v) missingFields.push(words);
+    });
+    document.querySelectorAll(".q, .item").forEach(b => b.classList.remove("missing"));
+    const missingQ = [];
+    QUESTIONS.forEach(q => {
+      if (choice(q.id) === null) { missingQ.push(q.letter); document.getElementById("q-" + q.id).classList.add("missing"); }
+    });
+    const missingS = [];
+    itemValues().forEach((v, i) => {
+      if (v === null) { missingS.push(i + 1); document.getElementById("item-" + (i + 1)).classList.add("missing"); }
+    });
+    const problems = [];
+    if (missingFields.length) problems.push("add " + joinList(missingFields) + " at the top");
+    if (missingQ.length) problems.push((missingQ.length === 1 ? "answer question " : "answer questions ") + joinList(missingQ));
+    if (missingS.length) problems.push((missingS.length === 1 ? "answer statement " : "answer statements ") + joinList(missingS.map(String)));
+    if (problems.length) {
+      msg.textContent = "Almost there: " + joinList(problems) + ", then click See my results again.";
+      msg.hidden = false;
+      msg.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    msg.hidden = true;
+    render(values);
+  }
+
+  function render(v) {
+    document.getElementById("rName").textContent = v.studentName;
+    document.getElementById("rRole").textContent = "Thinking of: " + v.roleName;
+    document.getElementById("rPerson").textContent = v.personName;
+    document.getElementById("rTopic").textContent = v.topicName;
+    document.getElementById("rSoon").textContent = QUESTIONS[0].opts[choice("soon")][0];
+    document.getElementById("rTalk").textContent = QUESTIONS[1].opts[choice("talk")][0];
+    const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    document.getElementById("rMeta").textContent = "module 4 snapshot · " + date;
+
+    const vals = itemValues();
+    const scored = MONSTERS.map(([key, name, desc], order) => {
+      const idx = ITEMS.map((it, i) => it[1] === key ? i : -1).filter(i => i >= 0);
+      const sum = idx.reduce((s, i) => s + vals[i], 0);
+      const high = idx.filter(i => vals[i] >= 4).map(i => ITEMS[i][0]);
+      return { name, desc, sum, high, order, nums: idx.map(i => i + 1), each: idx.map(i => vals[i]) };
+    }).sort((a, b) => b.sum - a.sum || a.order - b.order);
+
+    document.getElementById("rows").innerHTML = scored.map(m =>
+      `<div class="row"><div class="name">${m.name}<span class="label">statements ${m.nums.join(", ")}: ${m.each.join(" · ")}</span></div>` +
+      `<div class="bar" role="img" aria-label="${m.name}: ${m.sum} out of 20"><div class="fill" style="width:${(m.sum / 20) * 100}%"></div></div>` +
+      `<div class="score">${m.sum}<small>/20</small></div></div>`
+    ).join("");
+    document.getElementById("rMonsters").innerHTML = scored.map(m =>
+      `<div class="monster"><h3>${m.name}</h3><p>${m.desc}</p>` +
+      (m.high.length ? `<p class="label">rated often or almost always</p><ul>${m.high.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "") +
+      `</div>`
+    ).join("");
+
+    results.hidden = false;
+    results.focus({ preventScroll: true });
+    results.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  document.getElementById("editAnswers").addEventListener("click", () => {
+    form.scrollIntoView({ block: "start" });
+  });
+  document.getElementById("startOver").addEventListener("click", () => {
+    form.reset();
+    results.hidden = true;
+    msg.hidden = true;
+    FIELDS.forEach(([inputId, errId]) => {
+      document.getElementById(errId).hidden = true;
+      document.getElementById(inputId).setAttribute("aria-invalid", "false");
+    });
+    document.querySelectorAll(".q, .item").forEach(b => b.classList.remove("missing"));
+    updateCount();
+    window.scrollTo(0, 0);
+    document.getElementById("studentName").focus();
+  });
+})();
+</script>
+</body>
+</html>
