@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Are You Holding Onto?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column on white, ink type, square corners; Vesuvius (practice arc) appears only in the module chip, selected answers, and result marks. */
+:root {
+  --paper: #ffffff;
+  --ink: #1E1B18;
+  --muted: #5c5650;
+  --line: #d9d4cc;
+  --arc: #AB5631;
+  --on-arc: #ffffff;
+  --source-bg: #f6f4ee;
+  --source-line: #cfc9bc;
+  --track: #eeebe5;
+  --focus: #7a3a1f;
+  --display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+    --arc: #AB5631; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+    --track: #2a2926; --focus: #e3a585; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #17191c; --ink: #ECE8E2; --muted: #b3ada5; --line: #3a3833;
+  --arc: #AB5631; --on-arc: #ffffff; --source-bg: #22211e; --source-line: #48443d;
+  --track: #2a2926; --focus: #e3a585; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.6 var(--body);
+}
+.wrap {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 2rem 4rem;
+  display: grid;
+  gap: 2.25rem;
+}
+p { margin: 0; }
+.stack { display: grid; gap: 0.9rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.label {
+  font: 400 0.78rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+/* Header */
+header { display: grid; gap: 1rem; border-bottom: 2px solid var(--ink); padding-bottom: 1.5rem; }
+.kicker { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.chip {
+  background: var(--arc); color: var(--on-arc);
+  font: 700 0.85rem/1 var(--mono);
+  padding: 0.45rem 0.55rem;
+}
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.4rem; line-height: 1.2; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+
+/* Fields */
+.fields { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; align-items: start; }
+@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 0.35rem; min-width: 0; }
+.field label { font-weight: 600; font-size: 0.95rem; }
+.field .hint { font-size: 0.85rem; color: var(--muted); }
+input[type="text"] {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--ink); border-radius: 0;
+  padding: 0.55rem 0.7rem; width: 100%; box-sizing: border-box;
+}
+input[type="text"][aria-invalid="true"] { border-style: dashed; }
+input[type="text"]:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Source box */
+.source {
+  background: var(--source-bg);
+  border: 1px solid var(--source-line);
+  padding: 1.25rem 1.25rem 1rem;
+  display: grid; gap: 1.1rem;
+}
+.source .from { font-weight: 600; font-family: var(--display); }
+.cite { font-size: 0.82rem; line-height: 1.5; color: var(--muted); border-top: 1px solid var(--source-line); padding-top: 0.8rem; overflow-wrap: anywhere; }
+.cite a { color: inherit; }
+.note { border-left: 3px solid var(--ink); padding-left: 1rem; }
+.lead { color: var(--ink); }
+
+/* Items */
+.stem { font-weight: 600; }
+.legend-scale { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; font: 400 0.8rem/1.4 var(--mono); color: var(--muted); }
+.legend-scale b { color: var(--ink); }
+ol.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.item { border-top: 1px solid var(--source-line); padding-block: 0.9rem; }
+.item:last-child { border-bottom: 1px solid var(--source-line); }
+.item fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.6rem; }
+.item legend { padding: 0; display: flex; gap: 0.6rem; }
+.item legend .n { font: 700 0.9rem/1.6 var(--mono); min-width: 1.6rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.scale { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.3rem; margin-left: 2.2rem; }
+.ends { display: none; justify-content: space-between; margin-left: 2.2rem; font: 400 0.68rem/1.2 var(--mono); color: var(--muted); text-transform: lowercase; }
+@media (max-width: 600px) { .scale { margin-left: 0; } }
+@media (max-width: 480px) { .scale { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span {
+  display: grid; gap: 0.1rem; justify-items: center; align-content: start; text-align: center; height: 100%;
+  border: 1.5px solid var(--line); background: var(--paper);
+  padding: 0.45rem 0.15rem; cursor: pointer;
+  transition: background-color .12s, border-color .12s;
+}
+.opt b { font: 700 1rem/1.1 var(--mono); }
+.opt small { font: 400 0.66rem/1.2 var(--mono); text-transform: lowercase; color: var(--muted); }
+.opt input:hover + span { border-color: var(--ink); }
+.opt input:checked + span { background: var(--arc); border-color: var(--ink); color: var(--on-arc); }
+.opt input:checked + span small { color: var(--on-arc); }
+.opt input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+.item.missing .scale .opt span { border-color: var(--ink); border-style: dashed; }
+
+/* Actions */
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+button {
+  font: 700 1rem/1 var(--display); border-radius: 0; cursor: pointer;
+  padding: 0.85rem 1.2rem; border: 2px solid var(--ink);
+}
+.primary { background: var(--ink); color: var(--paper); }
+.secondary { background: transparent; color: var(--ink); font-size: 0.9rem; padding: 0.6rem 0.9rem; }
+.count { font: 400 0.85rem var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.msg { font-size: 0.95rem; font-weight: 600; border: 2px dashed var(--ink); padding: 0.6rem 0.8rem; }
+.err { font-size: 0.9rem; font-weight: 600; }
+
+/* Results */
+.result { border: 2px solid var(--ink); padding: 1.25rem; display: grid; gap: 1.25rem; background: var(--paper); }
+.result-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 0.9rem; }
+.who { font: 700 1.5rem/1.15 var(--display); overflow-wrap: anywhere; }
+.group { color: var(--muted); font-size: 0.95rem; overflow-wrap: anywhere; }
+.rows { display: grid; gap: 1.1rem; }
+.row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 0.4rem 1rem; align-items: center; }
+@media (max-width: 520px) { .row { grid-template-columns: minmax(0, 1fr) 3.5rem; } .row .bar { grid-column: 1 / -1; grid-row: 2; } }
+.row .name { font-weight: 600; line-height: 1.3; }
+.row .name .label { display: block; text-transform: none; }
+.row .score { font: 700 1.35rem/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.row .score small { font: 400 0.75rem var(--mono); color: var(--muted); }
+.bar { position: relative; height: 1.1rem; background: var(--track); border: 1px solid var(--line); }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--arc); border-right: 2px solid var(--ink); }
+.axis { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.5rem; gap: 1rem; }
+@media (max-width: 520px) { .axis { grid-template-columns: minmax(0, 1fr); } .axis .spacer { display: none; } }
+.ticks { position: relative; height: 1rem; font: 400 0.7rem var(--mono); color: var(--muted); }
+.ticks span { position: absolute; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+.ticks span:last-child { transform: translateX(-100%); }
+
+ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.4rem; }
+a { color: var(--ink); text-underline-offset: 2px; }
+footer { font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Module 5: checklist and three-choice questions */
+.part { display: grid; gap: 0.9rem; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.check { border-top: 1px solid var(--line); }
+.check:last-child { border-bottom: 1px solid var(--line); }
+.check label { display: grid; grid-template-columns: 1.6rem 1.4rem minmax(0, 1fr); gap: 0.6rem; align-items: start; padding-block: 0.75rem; cursor: pointer; }
+.check .n { font: 700 0.9rem/1.6 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.check input { appearance: none; -webkit-appearance: none; width: 1.3rem; height: 1.3rem; margin: 0.2rem 0 0; border: 1.5px solid var(--ink); border-radius: 0; background: var(--paper); display: grid; place-content: center; cursor: pointer; }
+.check input::before { content: ""; width: 0.7rem; height: 0.7rem; background: var(--arc); transform: scale(0); transition: transform .1s; }
+.check input:checked { border-color: var(--ink); }
+.check input:checked::before { transform: scale(1); }
+.check input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.q { display: grid; gap: 0.6rem; border-top: 1px solid var(--line); padding-top: 0.9rem; }
+.q fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.6rem; }
+.q legend { padding: 0; font-weight: 600; display: flex; gap: 0.6rem; }
+.q legend .n { font: 700 0.9rem/1.6 var(--mono); color: var(--muted); min-width: 1.6rem; }
+.choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin-left: 2.2rem; }
+@media (max-width: 520px) { .choices { grid-template-columns: 1fr; margin-left: 0; } }
+.choices .opt span { padding: 0.7rem 0.5rem; font-size: 0.95rem; }
+.q.missing .opt span { border-color: var(--ink); border-style: dashed; }
+.section-label { font: 400 0.78rem/1.4 var(--mono); letter-spacing: 0.04em; text-transform: lowercase; color: var(--muted); }
+.rsec { display: grid; gap: 0.5rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.facts { display: grid; gap: 0.25rem; }
+.facts p { overflow-wrap: anywhere; }
+.facts b { font-weight: 600; }
+.themes { display: grid; gap: 0.8rem; }
+.theme-head { display: flex; justify-content: space-between; gap: 1rem; font-weight: 600; }
+.theme-head .ct { font: 700 1rem var(--mono); font-variant-numeric: tabular-nums; }
+.pips { display: flex; gap: 0.25rem; margin-top: 0.3rem; }
+.pips i { width: 1.4rem; height: 0.7rem; border: 1px solid var(--ink); background: var(--track); }
+.pips i.on { background: var(--arc); }
+.theme ul { margin: 0.35rem 0 0; padding-left: 1.2rem; font-size: 0.95rem; }
+.style-name { font: 700 1.35rem/1.2 var(--display); }
+.style-name span { display: inline-block; background: var(--arc); color: var(--on-arc); padding: 0.15rem 0.5rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">
+      <span class="chip" aria-hidden="true">05</span>
+      <span class="label">mngt-p413 · practice arc · module 5 snapshot</span>
+    </div>
+    <h1>What Are You Holding Onto?</h1>
+  </header>
+
+  <section class="stack" aria-labelledby="before">
+    <h2 id="before">Before you start</h2>
+    <p>This week is about delegating. Take about five minutes to look at one task you keep doing yourself, what keeps you holding onto it, and what handing it off could look like, and complete this snapshot.</p>
+    <p>Pick one task you keep doing yourself that someone else could take on, now or with some help. Then think of one person who could take it. Use your current job if you can. If you aren't working right now, use a past job or a role you've put real effort into, like an internship, a volunteer role, or a team. Alternatively, you could even pick a roommate or member of your household and a task you keep hanging onto.</p>
+    <p>There's no score to aim for. This snapshot earns completion credit, and I'm interested in what you notice. I wrote these questions for this class; they're a reflection tool, not a published scale. Your answers stay in this browser window and aren't sent to me or saved anywhere, so be sure to take a screenshot of your name, task, and results before you exit out of this window.</p>
+  </section>
+
+  <form id="snapshot" class="stack" novalidate>
+    <div class="fields">
+      <div class="field">
+        <label for="studentName">Your name</label>
+        <input type="text" id="studentName" name="studentName" autocomplete="name" required aria-describedby="nameHint nameErr">
+        <p class="hint" id="nameHint">Add your name so it shows on your results.</p>
+        <p class="err" id="nameErr" hidden>Add your name here so your screenshot shows it's yours.</p>
+      </div>
+      <div class="field">
+        <label for="roleName">The role</label>
+        <input type="text" id="roleName" name="roleName" required aria-describedby="roleHint roleErr">
+        <p class="hint" id="roleHint">Add the role you are reflecting on.</p>
+        <p class="err" id="roleErr" hidden>Add the role you're thinking of so it shows on your results.</p>
+      </div>
+      <div class="field">
+        <label for="taskName">The task</label>
+        <input type="text" id="taskName" name="taskName" required aria-describedby="taskHint taskErr">
+        <p class="hint" id="taskHint">Name one task you keep doing yourself.</p>
+        <p class="err" id="taskErr" hidden>Name the task so it shows on your results.</p>
+      </div>
+      <div class="field">
+        <label for="personName">The person</label>
+        <input type="text" id="personName" name="personName" required aria-describedby="personHint personErr">
+        <p class="hint" id="personHint">Describe them by role, like "our newest team member."</p>
+        <p class="err" id="personErr" hidden>Describe the person by role so it shows on your results.</p>
+      </div>
+    </div>
+
+    <section class="part" aria-labelledby="p1">
+      <h2 id="p1">Why you hold onto it</h2>
+      <p>Check every statement that's true for you about this task. Skip the ones that aren't.</p>
+      <ul class="checks" id="checks"></ul>
+    </section>
+
+    <section class="part" aria-labelledby="p2">
+      <h2 id="p2">Handing it off</h2>
+      <p>Think about the person you have in mind.</p>
+      <div id="questions" class="part"></div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="primary" id="seeResults">See my results</button>
+      <span class="count" id="count" aria-live="polite">0 of 3 answered</span>
+    </div>
+    <p class="msg" id="msg" role="alert" hidden></p>
+  </form>
+
+  <section id="results" class="stack" aria-labelledby="resultsHeading" hidden tabindex="-1">
+    <h2 id="resultsHeading">Your results</h2>
+
+    <div class="result" id="resultCard">
+      <div class="result-head">
+        <div>
+          <div class="who" id="rName"></div>
+          <div class="group" id="rRole"></div>
+        </div>
+        <div class="label" id="rMeta"></div>
+      </div>
+      <div class="facts">
+        <p><b>Task:</b> <span id="rTask"></span></p>
+        <p><b>Handing it to:</b> <span id="rPerson"></span></p>
+      </div>
+      <div class="rsec">
+        <p class="section-label">what keeps you holding on</p>
+        <div class="themes" id="rThemes"></div>
+      </div>
+      <div class="rsec">
+        <p class="section-label">suggested handoff</p>
+        <p class="style-name"><span id="rStyle"></span></p>
+        <p id="rStyleText"></p>
+      </div>
+      <div class="rsec">
+        <p class="section-label">why hand it off</p>
+        <p id="rWhy"></p>
+      </div>
+      <p class="label" style="text-transform: none;">Suggested from your answers about experience and confidence. You know the person better than this page does.</p>
+    </div>
+
+    <p class="note"><strong>Dr. B's note:</strong> The reasons you checked are common, and most of them make sense in the moment. How you hand something off depends on the person: someone new to the task needs clear steps and frequent check-ins, and someone experienced needs the goal and room to run. Handing off with the right amount of support also builds the other person's competence and autonomy, two important drivers of human motivation. Handing off to get something done is managing; handing off to help someone grow is leading. Both can be effective in our strategic leadership.</p>
+
+    <div class="stack">
+      <h3>Turn it in</h3>
+      <ol class="steps">
+        <li>Take a screenshot that shows your name, your task, and your results.</li>
+        <li>Upload it to the Module 5 snapshot assignment in Canvas.</li>
+      </ol>
+      <p>Stuck on the screenshot? Use the screenshot one-pager from Module 0, or <a href="https://take-a-screenshot.org">Take a Screenshot</a> for any device.</p>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="editAnswers">Change my answers</button>
+      <button type="button" class="secondary" id="startOver">Start over</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>MNGT-P413 Managerial Leadership · Dr. Bonni Stachowiak. Reflection questions written for this class.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const STATEMENTS = [
+    ["No one else will do it as well as I do.", "q"],
+    ["It’s faster to do it myself than to explain it.", "t"],
+    ["I don’t want to add to someone else’s workload.", "c"],
+    ["I enjoy doing it.", "e"],
+    ["If it goes wrong, it will reflect on me.", "q"],
+    ["I don’t have time right now to show someone how.", "t"],
+    ["I’m not sure anyone is ready for it.", "c"],
+    ["Doing it is part of how people see my value.", "e"],
+    ["I like knowing exactly how it’s being done.", "q"],
+    ["I’ve handed off tasks like this before, and it ended up taking more of my time, not less.", "t"],
+    ["I don’t want it to look like I’m passing off work I don’t want to do.", "c"],
+    ["It’s the part of my work I’m best at.", "e"]
+  ];
+  const THEMES = [["q", "Quality and control"], ["t", "Time"], ["c", "Concern for others"], ["e", "Enjoyment and identity"]];
+  const QUESTIONS = [
+    { id: "exp", label: "How much experience does this person have with this kind of task?", opts: ["None yet", "Some", "A lot"] },
+    { id: "conf", label: "How confident or eager are they about taking it on?", opts: ["Not very", "Somewhat", "Very"] },
+    { id: "why", label: "Why would you hand it off?", opts: ["Mostly to get it done", "Mostly to help this person grow", "Both"] }
+  ];
+  // Rows: experience (none yet, some, a lot); columns: confidence (not very, somewhat, very).
+  const GRID = [
+    ["show", "show", "show"],
+    ["coach", "coach", "coach"],
+    ["support", "support", "hand"]
+  ];
+  const STYLES = {
+    show: ["Show and check", "Walk them through the steps, do the first one together, and check in often. They’re new to this, so clear direction is a kindness."],
+    coach: ["Explain and coach", "Explain the why along with the how, let them try, and give feedback along the way. They’re building skill and may lose steam before it clicks."],
+    support: ["Support their plan", "Ask how they would approach it, listen, and back their plan. They know how; your encouragement helps them trust it."],
+    hand: ["Hand it off", "Agree on the goal and when you’ll check in, then step back. They have the skill and the drive."]
+  };
+  const WHY = [
+    "Handing it off to get it done: managing.",
+    "Handing it off to help someone grow: leading.",
+    "Handing it off to get it done and to help someone grow: managing and leading."
+  ];
+  const LETTERS = ["A", "B", "C"];
+
+  const esc = t => t.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  document.getElementById("checks").innerHTML = STATEMENTS.map(([text], i) =>
+    `<li class="check"><label for="s${i + 1}"><span class="n">${i + 1}.</span><input type="checkbox" id="s${i + 1}" name="s${i + 1}"><span>${text}</span></label></li>`
+  ).join("");
+
+  document.getElementById("questions").innerHTML = QUESTIONS.map((q, qi) =>
+    `<div class="q" id="q-${q.id}"><fieldset><legend><span class="n">${LETTERS[qi]}.</span><span>${q.label}</span></legend><div class="choices">` +
+    q.opts.map((o, oi) => `<label class="opt"><input type="radio" name="${q.id}" id="${q.id}-${oi}" value="${oi}"><span><b style="font:600 0.95rem/1.3 var(--body)">${o}</b></span></label>`).join("") +
+    `</div></fieldset></div>`
+  ).join("");
+
+  const form = document.getElementById("snapshot");
+  const count = document.getElementById("count");
+  const msg = document.getElementById("msg");
+  const results = document.getElementById("results");
+  const FIELDS = [
+    ["studentName", "nameErr", "your name"],
+    ["roleName", "roleErr", "the role"],
+    ["taskName", "taskErr", "the task"],
+    ["personName", "personErr", "the person"]
+  ];
+
+  function choice(id) {
+    const c = form.querySelector(`input[name="${id}"]:checked`);
+    return c ? Number(c.value) : null;
+  }
+  function updateCount() {
+    const done = QUESTIONS.filter(q => choice(q.id) !== null).length;
+    count.textContent = `${done} of 3 answered`;
+  }
+
+  form.addEventListener("change", e => {
+    if (e.target.type === "radio") {
+      const q = e.target.closest(".q");
+      if (q) q.classList.remove("missing");
+      updateCount();
+    }
+  });
+  FIELDS.forEach(([inputId, errId]) => {
+    const el = document.getElementById(inputId);
+    el.addEventListener("input", () => {
+      if (el.value.trim()) { document.getElementById(errId).hidden = true; el.setAttribute("aria-invalid", "false"); }
+    });
+  });
+
+  // Enter key only; the button is type="button" with its own click handler.
+  form.addEventListener("submit", e => { e.preventDefault(); showResults(); });
+  document.getElementById("seeResults").addEventListener("click", showResults);
+
+  function joinList(items) {
+    if (items.length <= 1) return items.join("");
+    if (items.length === 2) return items.join(" and ");
+    return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+  }
+
+  function showResults() {
+    const values = {};
+    const missingFields = [];
+    FIELDS.forEach(([inputId, errId, words]) => {
+      const el = document.getElementById(inputId);
+      const v = el.value.trim();
+      values[inputId] = v;
+      document.getElementById(errId).hidden = !!v;
+      el.setAttribute("aria-invalid", v ? "false" : "true");
+      if (!v) missingFields.push(words);
+    });
+    document.querySelectorAll(".q").forEach(q => q.classList.remove("missing"));
+    const missingQ = [];
+    QUESTIONS.forEach((q, qi) => {
+      if (choice(q.id) === null) { missingQ.push(LETTERS[qi]); document.getElementById("q-" + q.id).classList.add("missing"); }
+    });
+    const problems = [];
+    if (missingFields.length) problems.push("add " + joinList(missingFields) + " at the top");
+    if (missingQ.length) problems.push((missingQ.length === 1 ? "answer question " : "answer questions ") + joinList(missingQ));
+    if (problems.length) {
+      msg.textContent = "Almost there: " + problems.join(" and ") + ", then click See my results again.";
+      msg.hidden = false;
+      msg.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    msg.hidden = true;
+    render(values);
+  }
+
+  function render(v) {
+    document.getElementById("rName").textContent = v.studentName;
+    document.getElementById("rRole").textContent = "Thinking of: " + v.roleName;
+    document.getElementById("rTask").textContent = v.taskName;
+    document.getElementById("rPerson").textContent = v.personName;
+    const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    document.getElementById("rMeta").textContent = "module 5 snapshot · " + date;
+
+    const checked = STATEMENTS.map((s, i) => document.getElementById("s" + (i + 1)).checked);
+    const themes = THEMES.map(([key, name], order) => {
+      const items = STATEMENTS.filter((s, i) => s[1] === key && checked[i]).map(s => s[0]);
+      return { name, items, order };
+    }).sort((a, b) => b.items.length - a.items.length || a.order - b.order);
+    const box = document.getElementById("rThemes");
+    if (!checked.some(Boolean)) {
+      box.innerHTML = `<p>You didn’t check any reasons. This task may be ready to hand off.</p>`;
+    } else {
+      box.innerHTML = themes.map(t =>
+        `<div class="theme"><div class="theme-head"><span>${t.name}</span><span class="ct">${t.items.length} of 3</span></div>` +
+        `<div class="pips" role="img" aria-label="${t.name}: ${t.items.length} of 3">${[0, 1, 2].map(k => `<i class="${k < t.items.length ? "on" : ""}"></i>`).join("")}</div>` +
+        (t.items.length ? `<ul>${t.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "") +
+        `</div>`
+      ).join("");
+    }
+
+    const style = STYLES[GRID[choice("exp")][choice("conf")]];
+    document.getElementById("rStyle").textContent = style[0];
+    document.getElementById("rStyleText").textContent = style[1];
+    document.getElementById("rWhy").textContent = WHY[choice("why")];
+
+    results.hidden = false;
+    results.focus({ preventScroll: true });
+    results.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  document.getElementById("editAnswers").addEventListener("click", () => {
+    form.scrollIntoView({ block: "start" });
+  });
+  document.getElementById("startOver").addEventListener("click", () => {
+    form.reset();
+    results.hidden = true;
+    msg.hidden = true;
+    FIELDS.forEach(([inputId, errId]) => {
+      document.getElementById(errId).hidden = true;
+      document.getElementById(inputId).setAttribute("aria-invalid", "false");
+    });
+    document.querySelectorAll(".q").forEach(q => q.classList.remove("missing"));
+    updateCount();
+    window.scrollTo(0, 0);
+    document.getElementById("studentName").focus();
+  });
+})();
+</script>
+</body>
+</html>
